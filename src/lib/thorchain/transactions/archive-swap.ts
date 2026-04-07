@@ -21,7 +21,7 @@ async function processSwapQuote(hash: string, height: number, tx: Tx): Promise<v
     try {
         const isSwap = isSwapMemo(tx.tx.memo);
         if (isSwap && tx.tx.memo) {
-            const memoData = parseSwapMemo('mayachain', hash, tx.tx.memo);
+            const memoData = parseSwapMemo('thorchain', hash, tx.tx.memo);
             if (memoData) {
                 const affiliates = memoData.affiliates.map((i) => i.affiliate).join('/');
                 const affiliateBpss = memoData.affiliates
