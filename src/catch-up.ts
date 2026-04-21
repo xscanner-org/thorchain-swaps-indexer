@@ -25,7 +25,9 @@ const logger = createLogger({
 const errorLogger = createLogger({
     format: winston.format.json(),
     defaultMeta: { service: 'indexer-catch-up-job-errors' },
-    transports: [new winston.transports.File()]
+    transports: [new winston.transports.File({
+        filename: 'indexer-catch-up-job-errors.log'
+    })]
 });
 
 const locks = {
