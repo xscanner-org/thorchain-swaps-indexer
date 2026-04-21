@@ -12,11 +12,20 @@ import { getLastBlockSafe } from './lib/utils';
 import { Mutex } from 'async-mutex';
 import { indexHeight as indexHeightThorchain } from '@/lib/thorchain/catch-up';
 import { indexHeight as indexHeightMayachain } from '@/lib/mayachain/catch-up';
+import { onStartup } from './lib/indexer/indexer-runs';
+
+let processId: string | undefined;
 
 const logger = createLogger({
     format: winston.format.json(),
     defaultMeta: { service: 'indexer-catch-up' },
     transports: [new winston.transports.Console()],
+});
+
+const errorLogger = createLogger({
+    format: winston.format.json(),
+    defaultMeta: { service: 'indexer-catch-up-job-errors' },
+    transports: [new winston.transports.File()]
 });
 
 const locks = {
@@ -90,10 +99,32 @@ async function catchUp(protocol: 'thorchain' | 'mayachain'): Promise<void> {
 
 scheduleJob('catch-up', '*/1 * * * *', async () => {
     const protocol: 'thorchain' | 'mayachain' = 'mayachain';
-    await catchUp(protocol);
+    try {
+        await catchUp(protocol);
+    } catch (error: any) {
+        const msg = `${processId} ${protocol}` + ' catch-up failure: ' + error.message
+        errorLogger.error(msg)
+    } finally {
+        locks[protocol].release();
+    }
 });
 
 scheduleJob('catch-up', '*/1 * * * *', async () => {
     const protocol: 'thorchain' | 'mayachain' = 'thorchain';
-    await catchUp(protocol);
+    try {
+        await catchUp(protocol);
+    } catch (error: any) {
+        const msg = `${processId} ${protocol}` + ' catch-up failure: ' + error.message
+        errorLogger.error(msg)
+    } finally {
+        locks[protocol].release();
+    }
 });
+
+async function start() {
+    const record = await onStartup('catch-up');
+    processId = record.id
+    return `Process ID: ${record.id.toString()}`
+}
+
+start().then(console.log).catch(console.error);

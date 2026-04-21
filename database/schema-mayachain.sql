@@ -140,6 +140,7 @@ CREATE TABLE mayachain.out_tx_coins (
 -- Indexes
 CREATE INDEX idx_tx_details_tx_id ON mayachain.tx_base_info(tx_id);
 CREATE INDEX idx_txs_tx_base_info_id ON mayachain.txs(tx_base_info_id);
+CREATE INDEX idx_txs_detail_from_address ON mayachain.txs(detail_from_address);
 CREATE INDEX idx_actions_tx_base_info_id ON mayachain.actions(tx_base_info_id);
 CREATE INDEX idx_actions_in_hash ON mayachain.actions(in_hash);
 CREATE INDEX idx_out_txs_tx_base_info_id ON mayachain.out_txs(tx_base_info_id);
@@ -209,6 +210,8 @@ CREATE TABLE mayachain.pools (
     created_at TIMESTAMP DEFAULT NOW(),
     PRIMARY KEY (asset, height)
 );
+
+CREATE INDEX idx_mayachain_pools_height ON mayachain.pools(height);
 
 ALTER TABLE mayachain.transactions_stages ADD COLUMN outbound_signed_completed BOOLEAN DEFAULT NULL;
 

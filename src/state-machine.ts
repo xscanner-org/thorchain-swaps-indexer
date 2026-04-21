@@ -14,6 +14,9 @@ import reIndexDataMayachain from '@/lib/mayachain/state-machine/reindex-data';
 
 import { IndexedHashState } from './lib/types';
 import { ArchiveSwapResult } from './lib/types';
+import { onStartup } from './lib/indexer/indexer-runs';
+
+let processId;
 
 async function transition(
     protocol: 'thorchain' | 'mayachain',
@@ -101,3 +104,11 @@ const thorAsLock = new Mutex();
 scheduleJob('ARCHIVE_SUCCESSFUL', scheduleForAll, async () =>
     transition('thorchain', thorAsLock, 'ARCHIVE_SUCCESSFUL'),
 );
+
+async function start() {
+    const record = await onStartup('state-machine');
+    processId = record.id
+    return `Process ID: ${record.id.toString()}`
+}
+
+start().then(console.log).catch(console.error);

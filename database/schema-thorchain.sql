@@ -140,6 +140,7 @@ CREATE TABLE thorchain.out_tx_coins (
 -- Indexes
 CREATE INDEX idx_tx_details_tx_id ON thorchain.tx_base_info(tx_id);
 CREATE INDEX idx_txs_tx_base_info_id ON thorchain.txs(tx_base_info_id);
+CREATE INDEX idx_txs_detail_from_address ON thorchain.txs(detail_from_address);
 CREATE INDEX idx_actions_tx_base_info_id ON thorchain.actions(tx_base_info_id);
 CREATE INDEX idx_actions_in_hash ON thorchain.actions(in_hash);
 CREATE INDEX idx_out_txs_tx_base_info_id ON thorchain.out_txs(tx_base_info_id);
@@ -222,6 +223,8 @@ CREATE TABLE thorchain.pools (
     created_at TIMESTAMP DEFAULT NOW(),
     PRIMARY KEY (asset, height)
 );
+
+CREATE INDEX idx_pools_height ON thorchain.pools(height);
 
 ALTER TABLE thorchain.transactions_stages ADD COLUMN outbound_signed_completed BOOLEAN DEFAULT NULL;
 
