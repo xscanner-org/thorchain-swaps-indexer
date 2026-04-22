@@ -5,6 +5,7 @@ import {
 import { archiveSwap } from '@/lib/mayachain/transactions/archive-swap';
 import winston, { createLogger } from 'winston';
 import { ArchiveSwapResult } from '@/lib/types';
+import { getStateMachineConfig } from '@/lib/indexer/repository';
 
 const errorLogger = createLogger({
     format: winston.format.json(),
@@ -13,9 +14,16 @@ const errorLogger = createLogger({
 });
 
 export default async function action() {
+    const config = await getStateMachineConfig('mayachain', 'STORED_INDEXED_HASH');
+
+    let batchSize = 100;
+    if (config && config.batch_size) {
+        batchSize = config.batch_size;
+    }
+
     const list = await getHavingState({
         state: 'STORED_INDEXED_HASH',
-        limit: 100,
+        limit: batchSize,
     });
 
     for (const item of list) {

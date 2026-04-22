@@ -25,9 +25,11 @@ const logger = createLogger({
 const errorLogger = createLogger({
     format: winston.format.json(),
     defaultMeta: { service: 'indexer-catch-up-job-errors' },
-    transports: [new winston.transports.File({
-        filename: 'indexer-catch-up-job-errors.log'
-    })]
+    transports: [
+        new winston.transports.File({
+            filename: 'indexer-catch-up-job-errors.log',
+        }),
+    ],
 });
 
 const locks = {
@@ -104,8 +106,8 @@ scheduleJob('catch-up', '*/1 * * * *', async () => {
     try {
         await catchUp(protocol);
     } catch (error: any) {
-        const msg = `${processId} ${protocol}` + ' catch-up failure: ' + error.message
-        errorLogger.error(msg)
+        const msg = `${processId} ${protocol}` + ' catch-up failure: ' + error.message;
+        errorLogger.error(msg);
     } finally {
         locks[protocol].release();
     }
@@ -116,8 +118,8 @@ scheduleJob('catch-up', '*/1 * * * *', async () => {
     try {
         await catchUp(protocol);
     } catch (error: any) {
-        const msg = `${processId} ${protocol}` + ' catch-up failure: ' + error.message
-        errorLogger.error(msg)
+        const msg = `${processId} ${protocol}` + ' catch-up failure: ' + error.message;
+        errorLogger.error(msg);
     } finally {
         locks[protocol].release();
     }
@@ -125,8 +127,8 @@ scheduleJob('catch-up', '*/1 * * * *', async () => {
 
 async function start() {
     const record = await onStartup('catch-up');
-    processId = record.id
-    return `Process ID: ${record.id.toString()}`
+    processId = record.id;
+    return `Process ID: ${processId.toString()}`;
 }
 
 start().then(console.log).catch(console.error);

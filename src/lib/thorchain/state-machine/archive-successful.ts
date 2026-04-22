@@ -7,6 +7,7 @@ import { getTransactionStage as getTransactionStageFromDb } from '@/lib/thorchai
 import { get as getTransactionStageFromNode } from '@/api/thorchain/tx-stages';
 import { getClient } from '@/database';
 import { stagesChanged } from './utils';
+import { getStateMachineConfig } from '@/lib/indexer/repository';
 
 const errorLogger = createLogger({
     format: winston.format.json(),
@@ -15,9 +16,16 @@ const errorLogger = createLogger({
 });
 
 export default async function action() {
+    const config = await getStateMachineConfig('thorchain', 'ARCHIVE_SUCCESSFUL');
+
+    let batchSize = 100;
+    if (config && config.batch_size) {
+        batchSize = config.batch_size;
+    }
+
     const list = await getHavingState({
         state: 'ARCHIVE_SUCCESSFUL',
-        limit: 100,
+        limit: batchSize,
     });
 
     for (const item of list) {

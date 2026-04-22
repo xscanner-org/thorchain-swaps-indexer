@@ -107,8 +107,8 @@ scheduleJob('ARCHIVE_SUCCESSFUL', scheduleForAll, async () =>
 
 async function start() {
     const record = await onStartup('state-machine');
-    processId = record.id
-    return `Process ID: ${record.id.toString()}`
+    processId = record.id;
+    return `Process ID: ${processId.toString()}`;
 }
 
 start().then(console.log).catch(console.error);

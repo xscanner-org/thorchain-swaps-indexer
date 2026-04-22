@@ -1,6 +1,7 @@
 import winston, { createLogger } from 'winston';
 import { getHavingState } from '@/lib/mayachain/transactions/indexed-hashes/repository';
 import { updateArchivedSwap } from '../transactions/update-archived-swap';
+import { getStateMachineConfig } from '@/lib/indexer/repository';
 
 const errorLogger = createLogger({
     format: winston.format.json(),
@@ -9,9 +10,16 @@ const errorLogger = createLogger({
 });
 
 export default async function action() {
+    const config = await getStateMachineConfig('mayachain', 'REINDEX_DATA');
+
+    let batchSize = 100;
+    if (config && config.batch_size) {
+        batchSize = config.batch_size;
+    }
+
     const list = await getHavingState({
         state: 'REINDEX_DATA',
-        limit: 100,
+        limit: batchSize,
     });
 
     for (const item of list) {
