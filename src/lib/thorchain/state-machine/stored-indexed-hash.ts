@@ -24,6 +24,7 @@ export default async function action() {
     const list = await getHavingState({
         state: 'STORED_INDEXED_HASH',
         limit: batchSize,
+        orderByHeight: 'DESC'
     });
 
     for (const item of list) {

@@ -49,12 +49,15 @@ export async function get({
 export async function getHavingState({
     state,
     limit,
+    orderByHeight,
 }: {
     state: string;
     limit: number;
+    orderByHeight?: 'ASC' | 'DESC';
 }): Promise<IndexedHash[]> {
     const dbReadWrite = await getClient('r');
-    const query = `SELECT * FROM thorchain.indexed_hashes WHERE state = $1 LIMIT $2`;
+    const orderClause = orderByHeight ? ` ORDER BY height ${orderByHeight}` : '';
+    const query = `SELECT * FROM thorchain.indexed_hashes WHERE state = $1${orderClause} LIMIT $2`;
     const response = await dbReadWrite.query<IndexedHash>(query, [state, limit]);
     return response.rows;
 }
