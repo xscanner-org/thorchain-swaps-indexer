@@ -37,6 +37,16 @@ export async function getTransactionStage(
     return response.rows[0] ? response.rows[0] : null;
 }
 
+export async function getTransactionStages(
+    hashes: string[],
+    db: Pool,
+): Promise<TransactionStage[]> {
+    const query = `SELECT * FROM thorchain.transactions_stages WHERE hash = ANY($1)`;
+    const response = await db.query<TransactionStage>(query, [hashes]);
+    return response.rows;
+}
+
+
 export async function updateTransactionStage(
     data: Omit<TransactionStage, 'protocol' | 'created_at' | 'updated_at'>,
     db: Pool,

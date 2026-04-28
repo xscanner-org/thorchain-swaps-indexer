@@ -7,6 +7,7 @@ import { Mutex } from 'async-mutex';
 import storedIndexedHashThorchain from '@/lib/thorchain/state-machine/stored-indexed-hash';
 import archiveSuccessfulThorchain from '@/lib/thorchain/state-machine/archive-successful';
 import reIndexDataThorchain from '@/lib/thorchain/state-machine/reindex-data';
+import archiveFailedThorchain from '@/lib/thorchain/state-machine/archive-failed';
 
 import storedIndexedHashMayachain from '@/lib/mayachain/state-machine/stored-indexed-hash';
 import archiveSuccessfulMayachain from '@/lib/mayachain/state-machine/archive-successful';
@@ -66,7 +67,12 @@ async function transition(
                 break;
             }
             case ArchiveSwapResult.ArchiveFailed: {
-                console.log(state);
+                // TODO: implement mayachain
+                const fn = protocol === 'thorchain' ?
+                    archiveFailedThorchain : null
+                if (fn) {
+                    await fn();
+                }
                 break;
             }
         }
@@ -103,6 +109,10 @@ scheduleJob('REINDEX_DATA', scheduleForAll, async () =>
 const thorAsLock = new Mutex();
 scheduleJob('ARCHIVE_SUCCESSFUL', scheduleForAll, async () =>
     transition('thorchain', thorAsLock, 'ARCHIVE_SUCCESSFUL'),
+);
+const thorAfLock = new Mutex();
+scheduleJob(ArchiveSwapResult.ArchiveFailed, scheduleForAll, async () =>
+    transition('thorchain', thorAfLock, ArchiveSwapResult.ArchiveFailed),
 );
 
 async function start() {
